@@ -2,6 +2,7 @@ name: price-check
 
 on:
   schedule:
+    # ~9:00, ~14:30 and ~20:30 India time, every day
     - cron: "30 3,9,15 * * *"
   workflow_dispatch: {}
 
@@ -23,4 +24,5 @@ jobs:
         env:
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
+          SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
         run: python checker/price_checker.py
