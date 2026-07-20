@@ -48,10 +48,40 @@ st.markdown(
                                       letter-spacing: -0.02em;}}
     div[data-testid="stMetricLabel"] p {{font-size: 11px; text-transform: uppercase;
                                         letter-spacing: .08em; color: {MUTED};}}
-    button[kind="primary"] {{background: {INK}; border: none; border-radius: 8px;}}
-    button[kind="primary"]:hover {{background: #383430;}}
-    button[kind="secondary"] {{border-radius: 8px;}}
+    .stButton button, .stFormSubmitButton button {{
+        border-radius: 8px; transition: background .15s ease, transform .1s ease,
+        box-shadow .15s ease;
+    }}
+    .stButton button:active, .stFormSubmitButton button:active {{
+        transform: scale(.98);
+    }}
+    button[kind="primary"]:not(:disabled), button[kind="primaryFormSubmit"]:not(:disabled),
+    button[data-testid="stBaseButton-primaryFormSubmit"]:not(:disabled) {{
+        background: {INK}; border: none;
+    }}
+    button[kind="primary"]:not(:disabled):hover,
+    button[kind="primaryFormSubmit"]:not(:disabled):hover {{
+        background: #383430; box-shadow: 0 2px 10px rgba(28,25,23,.18);
+    }}
+    button[kind="primary"]:not(:disabled) :is(p, span, div),
+    button[kind="primaryFormSubmit"]:not(:disabled) :is(p, span, div),
+    button[data-testid="stBaseButton-primaryFormSubmit"]:not(:disabled) :is(p, span, div) {{
+        color: #ffffff;
+    }}
+    button[kind="primary"]:disabled, button[kind="primaryFormSubmit"]:disabled {{
+        background: #eceae7; border: none;
+    }}
+    button[kind="primary"]:disabled :is(p, span, div),
+    button[kind="primaryFormSubmit"]:disabled :is(p, span, div) {{
+        color: #a8a29e;
+    }}
     div[data-testid="stForm"] {{border: none; padding: 0;}}
+    html {{scroll-behavior: smooth;}}
+    @media (max-width: 640px) {{
+        .block-container {{padding-top: 1.4rem; padding-left: 1rem;
+                           padding-right: 1rem;}}
+        div[data-testid="stMetricValue"] {{font-size: 22px;}}
+    }}
     </style>""",
     unsafe_allow_html=True,
 )
@@ -153,18 +183,29 @@ def inr(n):
 
 
 # ----------------------------------------------------------------- header
-c1, c2, c3 = st.columns([5, 1.1, 1.1], vertical_alignment="center")
-with c1:
-    st.markdown(
-        f"<div style='font-size:22px;font-weight:700;letter-spacing:-0.01em'>"
-        f"MSP Judge <span style='font-weight:400;color:{MUTED};font-size:14px'>"
-        f"every price, in or out</span></div>",
-        unsafe_allow_html=True,
-    )
-with c2:
-    st.image(BRANDS["Hundred"], use_container_width=True)
-with c3:
-    st.image(BRANDS["Li-Ning"], use_container_width=True)
+import base64
+
+
+@st.cache_data
+def logo_b64(path):
+    return base64.b64encode(Path(path).read_bytes()).decode()
+
+
+logo_imgs = "".join(
+    f"<img src='data:image/png;base64,{logo_b64(p)}' alt='{b}' "
+    f"style='height:24px;width:auto'/>"
+    for b, p in BRANDS.items()
+)
+st.markdown(
+    f"<div style='display:flex;align-items:center;justify-content:space-between;"
+    f"gap:12px 16px;flex-wrap:wrap;margin-bottom:14px'>"
+    f"<div style='font-size:22px;font-weight:700;letter-spacing:-0.01em'>"
+    f"MSP Judge <span style='font-weight:400;color:{MUTED};font-size:14px'>"
+    f"every price, in or out</span></div>"
+    f"<div style='display:flex;gap:14px;align-items:center'>{logo_imgs}</div>"
+    f"</div>",
+    unsafe_allow_html=True,
+)
 
 brand_filter = st.segmented_control(
     "Brand", options=["All"] + list(BRANDS), default="All",

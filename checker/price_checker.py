@@ -51,7 +51,21 @@ UA_POOL = [
 ]
 
 
+# When SCRAPER_API_KEY is set (cloud runs), requests are routed through
+# ScraperAPI so they arrive from ordinary Indian residential connections
+# instead of easily-blocked datacenter IPs. Without the key (local runs),
+# requests go direct.
+SCRAPER_KEY = os.environ.get("SCRAPER_API_KEY", "").strip()
+
+
 def http_get(url):
+    if SCRAPER_KEY:
+        return requests.get(
+            "https://api.scraperapi.com/",
+            params={"api_key": SCRAPER_KEY, "url": url,
+                    "country_code": "in"},
+            timeout=90,
+        )
     return requests.get(
         url,
         headers={
